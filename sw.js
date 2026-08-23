@@ -1,19 +1,19 @@
-const CACHE_NAME = 'yolo-burger-v3'; // ВАЖНО: изменил на v3
+const CACHE_NAME = 'yolo-burger-v4'; // ВАЖНО: версия изменена на v4
 const urlsToCache = [
   '/yolo-burger-pwa/',
   '/yolo-burger-pwa/index.html',
-  '/yolo-burger-pwa/admin.html', // ДОБАВИЛ
+  '/yolo-burger-pwa/admin.html',
   '/yolo-burger-pwa/style.css',
   '/yolo-burger-pwa/app.js',
-  '/yolo-burger-pwa/admin.js', // ДОБАВИЛ
-  '/yolo-burger-pwa/install-prompt.js', // ДОБАВИЛ
+  '/yolo-burger-pwa/admin.js',
+  '/yolo-burger-pwa/install-prompt.js',
   '/yolo-burger-pwa/manifest.json',
-  '/yolo-burger-pwa/admin-manifest.json', // ДОБАВИЛ
+  '/yolo-burger-pwa/admin-manifest.json',
   '/yolo-burger-pwa/offline.html',
   '/yolo-burger-pwa/icons/icon-192.png',
   '/yolo-burger-pwa/icons/icon-512.png',
-  '/yolo-burger-pwa/icons/icon35-192.png', // ДОБАВИЛ
-  '/yolo-burger-pwa/icons/icon35-512.png' // ДОБАВИЛ
+  '/yolo-burger-pwa/icons/icon35-192.png',
+  '/yolo-burger-pwa/icons/icon35-512.png'
 ];
 
 self.addEventListener('install', event => {
@@ -21,7 +21,7 @@ self.addEventListener('install', event => {
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
   );
-  self.skipWaiting();
+  self.skipWaiting(); // Активируем новый SW сразу
 });
 
 self.addEventListener('fetch', event => {
@@ -48,11 +48,11 @@ self.addEventListener('activate', event => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
+            return caches.delete(cacheName); // Удаляем старый кэш
           }
         })
       );
     })
   );
-  self.clients.claim();
+  self.clients.claim(); // Перехватываем управление всеми вкладками
 });
