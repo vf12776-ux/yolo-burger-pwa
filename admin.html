@@ -6,6 +6,13 @@
   <title>YOLO Admin</title>
   <link rel="stylesheet" href="style.css">
   <style>
+  #install-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; max-width: 90%; }
+  .install-btn { background: #E53935; color: white; border: none; padding: 12px 24px; border-radius: 25px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+  .install-hint, .install-instruction { background: #1E1E1E; padding: 15px 20px; border-radius: 12px; border: 1px solid #E53935; text-align: center; color: #FFF8E1; }
+  .warning { color: #E53935; font-weight: bold; margin-bottom: 10px; }
+  .copy-btn, .chrome-btn { background: #E53935; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin: 10px 0; width: 100%; font-weight: bold; }
+</style>
+  <style>
     .admin-container { max-width: 600px; margin: 40px auto; padding: 20px; background: #1E1E1E; border-radius: 16px; }
     .form-group { margin-bottom: 15px; }
     .form-group label { display: block; margin-bottom: 5px; color: #B0B0B0; }
@@ -18,7 +25,8 @@
   </style>
 </head>
 <body>
-  <header><h1>🔒 YOLO Admin</h1></header>
+  <header></header><div id="install-container"></div>><h1>🔒 YOLO Admin</h1></header>
+
   
   <!-- Форма входа -->
   <div id="login-form" class="admin-container">
