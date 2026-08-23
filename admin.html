@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YOLO Admin</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .admin-container { max-width: 600px; margin: 40px auto; padding: 20px; background: #1E1E1E; border-radius: 16px; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 5px; color: #B0B0B0; }
+    .form-group input, .form-group textarea { width: 100%; padding: 10px; background: #121212; border: 1px solid #333; color: #FFF8E1; border-radius: 8px; }
+    .btn-save { background: #E53935; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    .menu-list { margin-top: 30px; }
+    .menu-item-admin { display: flex; justify-content: space-between; align-items: center; background: #121212; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+    .btn-delete { background: #333; color: #E53935; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <header><h1>🔒 YOLO Admin</h1></header>
+  
+  <!-- Форма входа -->
+  <div id="login-form" class="admin-container">
+    <h2>Вход для владельца</h2>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="admin-email" placeholder="admin@yolo.local">
+    </div>
+    <div class="form-group">
+      <label>Пароль</label>
+      <input type="password" id="admin-password" placeholder="Ваш пароль">
+    </div>
+    <button class="btn-save" onclick="login()">Войти</button>
+    <p id="login-error" style="color: #E53935; margin-top: 10px;"></p>
+  </div>
+
+  <!-- Панель управления (скрыта до входа) -->
+  <div id="admin-panel" class="admin-container hidden">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+      <h2>Управление меню</h2>
+      <button onclick="logout()" style="background:none; border:none; color:#B0B0B0; cursor:pointer;">Выйти</button>
+    </div>
+
+    <div class="form-group">
+      <label>Название блюда</label>
+      <input type="text" id="item-name" placeholder="Например: Бургер Трюфель">
+    </div>
+    <div class="form-group">
+      <label>Описание</label>
+      <textarea id="item-desc" rows="2" placeholder="Состав и особенности"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Цена (₽)</label>
+      <input type="number" id="item-price" placeholder="450">
+    </div>
+    <div class="form-group">
+      <label>Ссылка на фото</label>
+      <input type="text" id="item-image" placeholder="https://... (загрузи на imgur.com или drive)">
+    </div>
+    <button class="btn-save" onclick="addMenuItem()">Добавить в меню</button>
+    <p id="admin-msg" style="margin-top:10px; text-align:center;"></p>
+
+    <div class="menu-list" id="admin-menu-list">
+      <!-- Сюда загрузится список для удаления -->
+    </div>
+  </div>
+
+  <!-- Подключаем Supabase через CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

@@ -1,20 +1,41 @@
-// Данные меню
-const menuData = [
-  { id: 1, name: "Бургер Трюфель", description: "Говяжья котлета, трюфельный соус, бекон, сыр", price: 450, image: "https://via.placeholder.com/150" },
-  { id: 2, name: "Бургер с копченой вишней", description: "Копченая вишня, бекон, фирменный соус", price: 420, image: "https://via.placeholder.com/150" },
-  { id: 3, name: "Классический Smash", description: "Двойная котлета, сыр чеддер, соленья", price: 380, image: "https://via.placeholder.com/150" },
-  { id: 4, name: "Картофель фри", description: "Хрустящий картофель с морской солью", price: 200, image: "https://via.placeholder.com/150" },
-  { id: 5, name: "Морс клюквенный", description: "Домашний морс из свежей клюквы", price: 180, image: "https://via.placeholder.com/150" }
-];
+// ВСТАВЬ СЮДА СВОИ ДАННЫЕ ИЗ SUPABASE (те же самые)
+const SUPABASE_URL = 'https://xdphktujhqnddxmwjred.supabase.co/rest/v1/';
+const SUPABASE_KEY = 'sb_publishable__ElzqpGGGXJ6RCV9SHJq_g_Jb9zrvc-';
 
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let menuData = [];
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+// Загрузка меню из базы при старте
+async function loadMenu() {
+  const { data, error } = await supabase
+    .from('menu')
+    .select('*')
+    .eq('is_available', true)
+    .order('id', { ascending: true });
+
+  if (error) {
+    console.error('Ошибка загрузки меню:', error);
+    document.getElementById('menu-items').innerHTML = '<p style="text-align:center; padding:20px;">Ошибка загрузки меню. Проверьте интернет.</p>';
+    return;
+  }
+
+  menuData = data || [];
+  renderMenu();
+}
 
 // Рендер меню
 function renderMenu() {
   const container = document.getElementById('menu-items');
+  if (menuData.length === 0) {
+    container.innerHTML = '<p style="text-align:center; padding:20px; color:#B0B0B0;">Меню пока пустое</p>';
+    return;
+  }
+  
   container.innerHTML = menuData.map(item => `
     <div class="menu-item">
-      <img src="${item.image}" alt="${item.name}" class="item-image">
+      <img src="${item.image_url}" alt="${item.name}" class="item-image" onerror="this.src='https://via.placeholder.com/150'">
       <div class="item-info">
         <h3>${item.name}</h3>
         <p>${item.description}</p>
@@ -58,7 +79,7 @@ function saveCart() {
   localStorage.setItem('cart', JSON.stringify(cart));
 }
 
-// Рендер корзины (с плавающей кнопкой)
+// Рендер корзины
 function renderCart() {
   const cartItems = document.getElementById('cart-items');
   const cartTotal = document.getElementById('cart-total');
@@ -92,43 +113,35 @@ function renderCart() {
   floatingTotal.textContent = `${total} ₽`;
 }
 
-// Открыть корзину
 function openCart() {
   document.getElementById('cart-modal').classList.add('open');
   document.getElementById('overlay').classList.add('open');
 }
 
-// Закрыть корзину
 function closeCart() {
   document.getElementById('cart-modal').classList.remove('open');
   document.getElementById('overlay').classList.remove('open');
 }
 
-// Оформление заказа
 function checkout() {
   if (cart.length === 0) return;
-  
   let message = '🍔 Предзаказ из YOLO Burgers:\n\n';
   let total = 0;
-  
   cart.forEach(item => {
     message += `• ${item.name} x${item.quantity} = ${item.price * item.quantity}₽\n`;
     total += item.price * item.quantity;
   });
-  
-  message += `\n💰 Итого: ${total}₽`;
-  message += `\n\n📱 Имя: [Ваше имя]`;
-  message += `\n⏰ Время получения: [Укажите время]`;
+  message += `\n💰 Итого: ${total}₽\n\n📱 Имя: [Ваше имя]\n⏰ Время: [Укажите время]`;
   
   const encodedMessage = encodeURIComponent(message);
-  window.open(`https://t.me/+79789270042?text=${encodedMessage}`, '_blank'); // Замени на реальный номер/юзернейм
+  // Замени номер на реальный номер владельца!
+  window.open(`https://wa.me/79789270042?text=${encodedMessage}`, '_blank'); 
 }
 
-// Звонок в ресторан
 function callRestaurant() {
   window.location.href = 'tel:+79789270042';
 }
 
 // Запуск при загрузке
-renderMenu();
+loadMenu();
 renderCart();
