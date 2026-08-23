@@ -1,10 +1,5 @@
-// ДАННЫЕ ИЗ SUPABASE 
-const SUPABASE_URL = 'https://xdphktujhqnddxmwjred.supabase.co/rest/v1/'; 
+const SUPABASE_URL = 'https://xdphktujhqnddxmwjred.supabase.co';
 const SUPABASE_KEY = 'sb_publishable__ElzqpGGGXJ6RCV9SHJq_g_Jb9zrvc-';
-
-if (SUPABASE_URL.includes('ВСТАВЬ') || SUPABASE_KEY.includes('ВСТАВЬ')) {
-  alert('ОШИБКА: Не вставлены ключи Supabase в admin.js!');
-}
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
