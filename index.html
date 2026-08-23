@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YOLO Burgers - Предзаказ</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ff6b35">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>🍔 YOLO Burgers</h1>
+    <p class="subtitle">Сделай предзаказ и забери без очереди!</p>
+  </header>
+
+  <main id="menu-container">
+    <h2>Меню</h2>
+    <div id="menu-items">
+      <!-- Здесь будут карточки товаров -->
+    </div>
+  </main>
+
+  <div id="cart" class="cart">
+    <h3>🛒 Корзина</h3>
+    <div id="cart-items"></div>
+    <div class="cart-total">
+      <span>Итого:</span>
+      <span id="cart-total">0 ₽</span>
+    </div>
+    <button id="checkout-btn" class="btn-primary" onclick="checkout()">
+      Оформить предзаказ
+    </button>
+    <button class="btn-secondary" onclick="callRestaurant()">
+      📞 Позвонить и продублировать
+    </button>
+  </div>
+
+  <footer>
+    <p>📍 пл. 300-летия Российского Флота, 4/1</p>
+    <p>⏰ Вт-Вс: 11:00 - 22:00</p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
+  <script src="install-prompt.js"></script>
+</body>
+</html>
