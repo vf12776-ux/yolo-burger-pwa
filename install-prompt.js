@@ -1,19 +1,18 @@
-// Проверяем, установлено ли приложение
 function isStandalone() {
   return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 }
 
-// Определяем браузер и ОС
 function detectBrowser() {
   const ua = navigator.userAgent;
   const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
   const isSafari = /Safari/.test(ua) && !/Chrome/.test(ua);
-  const isChrome = /Chrome/.test(ua) && !/Edge/.test(ua);
+  const isChrome = /Chrome/.test(ua) && !/Edge/.test(ua) && !/OPR/.test(ua) && !/YaBrowser/.test(ua);
   const isAndroid = /Android/.test(ua);
+  const isYandex = /YaBrowser/.test(ua);
   
   if (isIOS && isSafari) return 'ios-safari';
   if (isAndroid && isChrome) return 'android-chrome';
-  if (isAndroid && !isChrome) return 'android-other';
+  if (isAndroid && (isYandex || !isChrome)) return 'android-other';
   return 'desktop';
 }
 
@@ -30,6 +29,7 @@ function showInstallButton() {
   
   const browser = detectBrowser();
   const installContainer = document.getElementById('install-container');
+  if (!installContainer) return;
   
   if (browser === 'ios-safari') {
     installContainer.innerHTML = `
@@ -72,13 +72,12 @@ function copyLink() {
 }
 
 function openChrome() {
-  const url = window.location.href;
-  window.location.href = `intent://${new URL(url).hostname}${new URL(url).pathname}#Intent;scheme=https;package=com.android.chrome;end`;
+  const url = encodeURIComponent(window.location.href);
+  window.location.href = `intent://vf12776-ux.github.io/yolo-burger-pwa/#Intent;scheme=https;package=com.android.chrome;end`;
 }
 
-// Запуск при загрузке
 if (!isStandalone()) {
   document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(showInstallButton, 1000);
+    setTimeout(showInstallButton, 500);
   });
 }
