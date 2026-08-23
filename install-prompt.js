@@ -57,8 +57,7 @@ function showInstallButton() {
         <p>Нажмите "Скопировать"</p>
         <p>↓</p>
         <button onclick="copyLink()" class="copy-btn">📋 Скопировать</button>
-        <p>Нажмите "Открыть Chrome" и вставьте ссылку</p>
-        <button onclick="openChrome()" class="chrome-btn">🌐 Открыть Chrome</button>
+        <p>Откройте Chrome вручную и вставьте ссылку</p>
       </div>
     `;
   }
@@ -67,13 +66,10 @@ function showInstallButton() {
 function copyLink() {
   const url = window.location.href;
   navigator.clipboard.writeText(url).then(() => {
-    alert('Ссылка скопирована!');
+    alert('Ссылка скопирована! Откройте Chrome и вставьте её.');
+  }).catch(() => {
+    prompt('Скопируйте эту ссылку:', url);
   });
-}
-
-function openChrome() {
-  const url = encodeURIComponent(window.location.href);
-  window.location.href = `intent://vf12776-ux.github.io/yolo-burger-pwa/#Intent;scheme=https;package=com.android.chrome;end`;
 }
 
 if (!isStandalone()) {
