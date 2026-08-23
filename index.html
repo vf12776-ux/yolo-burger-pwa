@@ -2,52 +2,66 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>YOLO Burgers - Предзаказ</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#ff6b35">
+  <meta name="theme-color" content="#E53935">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
-    <h1>🍔 YOLO Burgers</h1>
-    <p class="subtitle">Сделай предзаказ и забери без очереди!</p>
+    <h1>🍔 YOLO</h1>
+    <p class="subtitle">Сочные smash-бургеры. Закажи и забери без очереди!</p>
   </header>
 
   <main id="menu-container">
-    <h2>Меню</h2>
     <div id="menu-items">
-      <!-- Здесь будут карточки товаров -->
+      <!-- Карточки товаров генерируются через JS -->
     </div>
   </main>
 
-  <div id="cart" class="cart">
-    <h3>🛒 Корзина</h3>
-    <div id="cart-items"></div>
+  <footer>
+    <p>📍 Севастополь, пл. 300-летия Российского Флота, 4/1</p>
+    <p>⏰ Вт-Вс: 11:00 - 22:00</p>
+  </footer>
+
+  <!-- Плавающая кнопка корзины -->
+  <button id="floating-cart-btn" class="floating-cart hidden" onclick="openCart()">
+    🛒 <span id="floating-total">0 ₽</span>
+  </button>
+
+  <!-- Затемнение фона -->
+  <div id="overlay" class="overlay" onclick="closeCart()"></div>
+
+  <!-- Модальное окно корзины -->
+  <div id="cart-modal" class="cart-modal">
+    <div class="cart-modal-header">
+      <h3>Ваш заказ</h3>
+      <button class="close-cart" onclick="closeCart()">✕</button>
+    </div>
+    <div id="cart-items">
+      <p class="empty-cart">Корзина пуста</p>
+    </div>
     <div class="cart-total">
       <span>Итого:</span>
       <span id="cart-total">0 ₽</span>
     </div>
-    <button id="checkout-btn" class="btn-primary" onclick="checkout()">
-      Оформить предзаказ
-    </button>
-    <button class="btn-secondary" onclick="callRestaurant()">
-      📞 Позвонить и продублировать
-    </button>
+    <button class="btn-primary" onclick="checkout()">Оформить предзаказ</button>
+    <button class="btn-secondary" onclick="callRestaurant()">📞 Позвонить и продублировать</button>
   </div>
 
-  <footer>
-    <p>📍 пл. 300-летия Российского Флота, 4/1</p>
-    <p>⏰ Вт-Вс: 11:00 - 22:00</p>
-  </footer>
+  <!-- Подсказка для Safari (iOS) -->
+  <div id="safari-hint" class="safari-hint">
+    👆 Нажмите "Поделиться" <br> и выберите "На экран «Домой»"
+  </div>
 
   <script src="app.js"></script>
+  <script src="install-prompt.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js');
     }
   </script>
-  <script src="install-prompt.js"></script>
 </body>
 </html>

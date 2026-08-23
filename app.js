@@ -1,40 +1,10 @@
-// Временные данные меню (позже заменим на загрузку из Firebase/JSON)
+// Данные меню
 const menuData = [
-  {
-    id: 1,
-    name: "Бургер Трюфель",
-    description: "Говяжья котлета, трюфельный соус, бекон, сыр",
-    price: 450,
-    image: "https://via.placeholder.com/150"
-  },
-  {
-    id: 2,
-    name: "Бургер с копченой вишней",
-    description: "Копченая вишня, бекон, фирменный соус",
-    price: 420,
-    image: "https://via.placeholder.com/150"
-  },
-  {
-    id: 3,
-    name: "Классический Smash",
-    description: "Двойная котлета, сыр чеддер, соленья",
-    price: 380,
-    image: "https://via.placeholder.com/150"
-  },
-  {
-    id: 4,
-    name: "Картофель фри",
-    description: "Хрустящий картофель с морской солью",
-    price: 200,
-    image: "https://via.placeholder.com/150"
-  },
-  {
-    id: 5,
-    name: "Морс клюквенный",
-    description: "Домашний морс из свежей клюквы",
-    price: 180,
-    image: "https://via.placeholder.com/150"
-  }
+  { id: 1, name: "Бургер Трюфель", description: "Говяжья котлета, трюфельный соус, бекон, сыр", price: 450, image: "https://via.placeholder.com/150" },
+  { id: 2, name: "Бургер с копченой вишней", description: "Копченая вишня, бекон, фирменный соус", price: 420, image: "https://via.placeholder.com/150" },
+  { id: 3, name: "Классический Smash", description: "Двойная котлета, сыр чеддер, соленья", price: 380, image: "https://via.placeholder.com/150" },
+  { id: 4, name: "Картофель фри", description: "Хрустящий картофель с морской солью", price: 200, image: "https://via.placeholder.com/150" },
+  { id: 5, name: "Морс клюквенный", description: "Домашний морс из свежей клюквы", price: 180, image: "https://via.placeholder.com/150" }
 ];
 
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -61,20 +31,11 @@ function renderMenu() {
 function addToCart(itemId) {
   const item = menuData.find(i => i.id === itemId);
   const existingItem = cart.find(i => i.id === itemId);
-  
   if (existingItem) {
     existingItem.quantity++;
   } else {
     cart.push({ ...item, quantity: 1 });
   }
-  
-  saveCart();
-  renderCart();
-}
-
-// Удалить из корзины
-function removeFromCart(itemId) {
-  cart = cart.filter(i => i.id !== itemId);
   saveCart();
   renderCart();
 }
@@ -85,35 +46,40 @@ function updateQuantity(itemId, delta) {
   if (item) {
     item.quantity += delta;
     if (item.quantity <= 0) {
-      removeFromCart(itemId);
-    } else {
-      saveCart();
-      renderCart();
+      cart = cart.filter(i => i.id !== itemId);
     }
+    saveCart();
+    renderCart();
   }
 }
 
-// Сохранить корзину в localStorage
+// Сохранить корзину
 function saveCart() {
   localStorage.setItem('cart', JSON.stringify(cart));
 }
 
-// Рендер корзины
+// Рендер корзины (с плавающей кнопкой)
 function renderCart() {
   const cartItems = document.getElementById('cart-items');
   const cartTotal = document.getElementById('cart-total');
+  const floatingTotal = document.getElementById('floating-total');
+  const floatingBtn = document.getElementById('floating-cart-btn');
   
   if (cart.length === 0) {
     cartItems.innerHTML = '<p class="empty-cart">Корзина пуста</p>';
     cartTotal.textContent = '0 ₽';
+    floatingTotal.textContent = '0 ₽';
+    floatingBtn.classList.add('hidden');
     return;
   }
+  
+  floatingBtn.classList.remove('hidden');
   
   cartItems.innerHTML = cart.map(item => `
     <div class="cart-item">
       <span>${item.name}</span>
       <div class="quantity-controls">
-        <button onclick="updateQuantity(${item.id}, -1)">-</button>
+        <button onclick="updateQuantity(${item.id}, -1)">−</button>
         <span>${item.quantity}</span>
         <button onclick="updateQuantity(${item.id}, 1)">+</button>
       </div>
@@ -123,14 +89,24 @@ function renderCart() {
   
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   cartTotal.textContent = `${total} ₽`;
+  floatingTotal.textContent = `${total} ₽`;
+}
+
+// Открыть корзину
+function openCart() {
+  document.getElementById('cart-modal').classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+}
+
+// Закрыть корзину
+function closeCart() {
+  document.getElementById('cart-modal').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
 }
 
 // Оформление заказа
 function checkout() {
-  if (cart.length === 0) {
-    alert('Корзина пуста!');
-    return;
-  }
+  if (cart.length === 0) return;
   
   let message = '🍔 Предзаказ из YOLO Burgers:\n\n';
   let total = 0;
@@ -145,9 +121,7 @@ function checkout() {
   message += `\n⏰ Время получения: [Укажите время]`;
   
   const encodedMessage = encodeURIComponent(message);
-  
-  // Открываем Telegram (замени на реальный номер/юзернейм)
-  window.open(`https://t.me/+7978XXXXXXX?text=${encodedMessage}`, '_blank');
+  window.open(`https://t.me/+79789270042?text=${encodedMessage}`, '_blank'); // Замени на реальный номер/юзернейм
 }
 
 // Звонок в ресторан
@@ -155,6 +129,6 @@ function callRestaurant() {
   window.location.href = 'tel:+79789270042';
 }
 
-// Инициализация
+// Запуск при загрузке
 renderMenu();
 renderCart();
