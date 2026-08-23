@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>YOLO Admin</title>
   <link rel="stylesheet" href="style.css">
-  <!-- ВАЖНО: Добавлен манифест для установки админки как PWA -->
   <link rel="manifest" href="admin-manifest.json">
   <style>
     #install-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; max-width: 90%; }
     .install-btn { background: #E53935; color: white; border: none; padding: 12px 24px; border-radius: 25px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
     .install-hint, .install-instruction { background: #1E1E1E; padding: 15px 20px; border-radius: 12px; border: 1px solid #E53935; text-align: center; color: #FFF8E1; }
     .warning { color: #E53935; font-weight: bold; margin-bottom: 10px; }
-    .copy-btn { background: #E53935; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin: 10px 0; width: 100%; font-weight: bold; }
+    .chrome-btn { background: #E53935; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-bottom: 10px; width: 100%; font-weight: bold; }
+    .copy-btn { background: #333; color: white; border: 1px solid #555; padding: 10px 20px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; }
     .admin-container { max-width: 600px; margin: 40px auto; padding: 20px; background: #1E1E1E; border-radius: 16px; }
     .form-group { margin-bottom: 15px; }
     .form-group label { display: block; margin-bottom: 5px; color: #B0B0B0; }
@@ -25,14 +25,9 @@
   </style>
 </head>
 <body>
-  <!-- Исправлен сломанный header -->
-  <header>
-    <h1>🔒 YOLO Admin</h1>
-  </header>
-  
+  <header><h1>🔒 YOLO Admin</h1></header>
   <div id="install-container"></div>
 
-  <!-- Форма входа -->
   <div id="login-form" class="admin-container">
     <h2>Вход для владельца</h2>
     <div class="form-group">
@@ -47,13 +42,11 @@
     <p id="login-error" style="color: #E53935; margin-top: 10px;"></p>
   </div>
 
-  <!-- Панель управления (скрыта до входа) -->
   <div id="admin-panel" class="admin-container hidden">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
       <h2>Управление меню</h2>
       <button onclick="logout()" style="background:none; border:none; color:#B0B0B0; cursor:pointer;">Выйти</button>
     </div>
-
     <div class="form-group">
       <label>Название блюда</label>
       <input type="text" id="item-name" placeholder="Например: Бургер Трюфель">
@@ -72,11 +65,9 @@
     </div>
     <button class="btn-save" onclick="addMenuItem()">Добавить в меню</button>
     <p id="admin-msg" style="margin-top:10px; text-align:center;"></p>
-
     <div class="menu-list" id="admin-menu-list"></div>
   </div>
 
-  <!-- Скрипты (убраны дубликаты) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="install-prompt.js"></script>
   <script src="admin.js"></script>

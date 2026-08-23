@@ -1,12 +1,14 @@
-// ВСТАВЬ СЮДА СВОИ ДАННЫЕ ИЗ SUPABASE
+// ДАННЫЕ ИЗ SUPABASE 
 const SUPABASE_URL = 'https://xdphktujhqnddxmwjred.supabase.co/rest/v1/'; 
-const SUPABASE_KEY = 'sb_publishable__ElzqpGGGXJ6RCV9SHJq_g_Jb9zrvc-'; 
+const SUPABASE_KEY = 'sb_publishable__ElzqpGGGXJ6RCV9SHJq_g_Jb9zrvc-';
+
+if (SUPABASE_URL.includes('ВСТАВЬ') || SUPABASE_KEY.includes('ВСТАВЬ')) {
+  alert('ОШИБКА: Не вставлены ключи Supabase в admin.js!');
+}
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
 let currentUser = null;
 
-// Проверка сессии при загрузке
 async function checkSession() {
   const { data: { session } } = await supabase.auth.getSession();
   if (session) {
@@ -15,14 +17,12 @@ async function checkSession() {
   }
 }
 
-// Вход
 async function login() {
   const email = document.getElementById('admin-email').value;
   const password = document.getElementById('admin-password').value;
   const errorMsg = document.getElementById('login-error');
 
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  
   if (error) {
     errorMsg.textContent = 'Ошибка: ' + error.message;
   } else {
@@ -31,7 +31,6 @@ async function login() {
   }
 }
 
-// Выход
 async function logout() {
   await supabase.auth.signOut();
   currentUser = null;
@@ -39,21 +38,18 @@ async function logout() {
   document.getElementById('admin-panel').classList.add('hidden');
 }
 
-// Показать панель
 function showAdminPanel() {
   document.getElementById('login-form').classList.add('hidden');
   document.getElementById('admin-panel').classList.remove('hidden');
   loadAdminMenu();
 }
 
-// Загрузка списка для админа
 async function loadAdminMenu() {
   const { data, error } = await supabase.from('menu').select('*').order('id', { ascending: false });
   if (error) {
     console.error(error);
     return;
   }
-
   const list = document.getElementById('admin-menu-list');
   list.innerHTML = data.map(item => `
     <div class="menu-item-admin">
@@ -66,7 +62,6 @@ async function loadAdminMenu() {
   `).join('');
 }
 
-// Добавление блюда
 async function addMenuItem() {
   const name = document.getElementById('item-name').value;
   const description = document.getElementById('item-desc').value;
@@ -81,7 +76,6 @@ async function addMenuItem() {
   }
 
   msg.textContent = 'Сохранение...';
-  
   const { error } = await supabase.from('menu').insert([{ name, description, price, image_url, is_available: true }]);
 
   if (error) {
@@ -90,19 +84,16 @@ async function addMenuItem() {
   } else {
     msg.textContent = 'Успешно добавлено!';
     msg.style.color = '#4CAF50';
-    // Очистка полей
     document.getElementById('item-name').value = '';
     document.getElementById('item-desc').value = '';
     document.getElementById('item-price').value = '';
     document.getElementById('item-image').value = '';
-    loadAdminMenu(); // Обновить список
+    loadAdminMenu();
   }
 }
 
-// Удаление блюда
 async function deleteMenuItem(id) {
   if (!confirm('Удалить эту позицию?')) return;
-  
   const { error } = await supabase.from('menu').delete().eq('id', id);
   if (error) {
     alert('Ошибка удаления: ' + error.message);
@@ -111,5 +102,4 @@ async function deleteMenuItem(id) {
   }
 }
 
-// Запуск
 checkSession();

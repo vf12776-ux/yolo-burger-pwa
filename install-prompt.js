@@ -4,15 +4,13 @@ function isStandalone() {
 
 function detectBrowser() {
   const ua = navigator.userAgent;
-  const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-  const isSafari = /Safari/.test(ua) && !/Chrome/.test(ua);
-  const isChrome = /Chrome/.test(ua) && !/Edge/.test(ua) && !/OPR/.test(ua) && !/YaBrowser/.test(ua);
+  const isIOS = /iPhone|iPad|iPod/.test(ua);
   const isAndroid = /Android/.test(ua);
-  const isYandex = /YaBrowser/.test(ua);
+  const isChrome = /Chrome/.test(ua) && !/YaBrowser|OPR|Firefox|SamsungBrowser|Edg/.test(ua);
   
-  if (isIOS && isSafari) return 'ios-safari';
+  if (isIOS) return 'ios';
   if (isAndroid && isChrome) return 'android-chrome';
-  if (isAndroid && (isYandex || !isChrome)) return 'android-other';
+  if (isAndroid && !isChrome) return 'android-other';
   return 'desktop';
 }
 
@@ -31,7 +29,7 @@ function showInstallButton() {
   const installContainer = document.getElementById('install-container');
   if (!installContainer) return;
   
-  if (browser === 'ios-safari') {
+  if (browser === 'ios') {
     installContainer.innerHTML = `
       <div class="install-hint">
         <p>📱 Для установки на iPhone:</p>
@@ -53,20 +51,29 @@ function showInstallButton() {
   } else if (browser === 'android-other') {
     installContainer.innerHTML = `
       <div class="install-instruction">
-        <p class="warning">⚠️ Вы не в Chrome</p>
-        <p>Нажмите "Скопировать"</p>
-        <p>↓</p>
-        <button onclick="copyLink()" class="copy-btn">📋 Скопировать</button>
-        <p>Откройте Chrome вручную и вставьте ссылку</p>
+        <p class="warning">🔵 Вы не в Chrome</p>
+        <p>При сканировании QR — скопируйте ссылку и откройте её в <strong>Chrome</strong>.</p>
+        <button id="openChromeBtn" class="chrome-btn">🌐 Открыть в Chrome</button>
+        <button onclick="copyLink()" class="copy-btn">📋 Скопировать ссылку</button>
       </div>
     `;
+    
+    document.getElementById('openChromeBtn').addEventListener('click', () => {
+      const url = window.location.href;
+      const cleanUrl = url.replace(/^https?:\/\//, '');
+      window.location.href = 'intent://' + cleanUrl + '#Intent;scheme=googlechrome;end';
+    });
   }
 }
 
 function copyLink() {
   const url = window.location.href;
   navigator.clipboard.writeText(url).then(() => {
-    alert('Ссылка скопирована! Откройте Chrome и вставьте её.');
+    const btn = document.querySelector('.copy-btn');
+    if (btn) {
+      btn.textContent = '✅ Скопировано!';
+      setTimeout(() => { btn.textContent = '📋 Скопировать ссылку'; }, 2000);
+    }
   }).catch(() => {
     prompt('Скопируйте эту ссылку:', url);
   });
