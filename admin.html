@@ -13,7 +13,7 @@
     .form-group label { display: block; margin-bottom: 5px; color: #B0B0B0; }
     .form-group input, .form-group textarea { 
       width: 100%; padding: 10px; border: 1px solid #333; border-radius: 8px; 
-      background: #1A1A1A; color: white; font-size: 16px; 
+      background: #1A1A1A; color: white; font-size: 16px; box-sizing: border-box;
     }
     .btn-primary { 
       width: 100%; padding: 12px; background: #E53935; color: white; 
@@ -54,13 +54,15 @@
         <label>Пароль</label>
         <input type="password" id="admin-password" value="YoloBurger2026!">
       </div>
-      <button class="btn-primary" onclick="login()">Войти</button>
+      <!-- Убрали onclick, добавили id -->
+      <button id="login-btn" class="btn-primary">Войти</button>
       <p id="login-error" style="color: #E53935; margin-top: 10px;"></p>
     </div>
 
     <!-- Панель администратора -->
     <div id="admin-panel" class="hidden">
-      <button class="btn-delete" onclick="logout()" style="width: 100%; margin-bottom: 20px;">Выйти из аккаунта</button>
+      <!-- Убрали onclick, добавили id -->
+      <button id="logout-btn" class="btn-delete" style="width: 100%; margin-bottom: 20px;">Выйти из аккаунта</button>
       
       <h2>Добавить блюдо</h2>
       <div class="form-group">
@@ -79,20 +81,18 @@
         <label>Ссылка на фото</label>
         <input type="text" id="item-image" placeholder="https://...">
       </div>
-      <button class="btn-primary" onclick="addMenuItem()">Добавить в меню</button>
+      <!-- Убрали onclick, добавили id -->
+      <button id="add-item-btn" class="btn-primary">Добавить в меню</button>
       <p id="admin-msg"></p>
 
       <h2 style="margin-top: 30px;">Текущее меню</h2>
       <div id="admin-menu-list"></div>
     </div>
 
-    <!-- Контейнер для PWA установки -->
     <div id="install-container" style="margin-top: 30px;"></div>
   </div>
 
-  <!-- Подключение Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Подключение нашего скрипта -->
   <script src="admin.js"></script>
 </body>
 </html>

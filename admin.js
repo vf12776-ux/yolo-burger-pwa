@@ -14,26 +14,21 @@ async function checkSession() {
 }
 
 async function login() {
-  console.log('Функция login вызвана!');
+  console.log('Функция login вызвана');
   const email = document.getElementById('admin-email').value;
   const password = document.getElementById('admin-password').value;
   const errorMsg = document.getElementById('login-error');
   
   if (!email || !password) {
     errorMsg.textContent = 'Заполните email и пароль';
-    errorMsg.style.color = '#E53935';
     return;
   }
   
   errorMsg.textContent = 'Вход...';
-  errorMsg.style.color = '#FFC107';
-  
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   
   if (error) {
-    console.error('Ошибка Supabase:', error);
     errorMsg.textContent = 'Ошибка: ' + error.message;
-    errorMsg.style.color = '#E53935';
   } else {
     currentUser = data.user;
     errorMsg.textContent = '';
@@ -56,10 +51,7 @@ function showAdminPanel() {
 
 async function loadAdminMenu() {
   const { data, error } = await supabase.from('menu').select('*').order('id', { ascending: false });
-  if (error) {
-    console.error('Ошибка загрузки:', error);
-    return;
-  }
+  if (error) return;
   
   const listEl = document.getElementById('admin-menu-list');
   if (!data || data.length === 0) {
@@ -73,9 +65,14 @@ async function loadAdminMenu() {
         <strong>${item.name}</strong> — ${item.price} ₽<br>
         <small style="color:#B0B0B0">${item.is_available ? '✅ Доступно' : '❌ Скрыто'}</small>
       </div>
-      <button class="btn-delete" onclick="deleteMenuItem(${item.id})">Удалить</button>
+      <button class="btn-delete" data-id="${item.id}">Удалить</button>
     </div>
   `).join('');
+
+  // Привязываем удаление к новым кнопкам
+  document.querySelectorAll('.btn-delete').forEach(btn => {
+    btn.addEventListener('click', () => deleteMenuItem(btn.dataset.id));
+  });
 }
 
 async function addMenuItem() {
@@ -115,6 +112,7 @@ async function deleteMenuItem(id) {
   loadAdminMenu();
 }
 
+// PWA Logic
 function isStandalone() {
   return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 }
@@ -156,39 +154,36 @@ function showInstallButton() {
       <div class="install-instruction">
         <p class="warning">🔵 Вы не в Chrome</p>
         <button id="openChromeBtn" class="chrome-btn">🌐 Открыть в Chrome</button>
-        <button onclick="copyLink()" class="copy-btn">📋 Скопировать ссылку</button>
+        <button id="copyLinkBtn" class="copy-btn">📋 Скопировать ссылку</button>
       </div>`;
+    
     document.getElementById('openChromeBtn').addEventListener('click', () => {
       const url = window.location.href;
       const cleanUrl = url.replace(/^https?:\/\//, '');
       window.location.href = 'intent://' + cleanUrl + '#Intent;scheme=googlechrome;end';
     });
+    
+    document.getElementById('copyLinkBtn').addEventListener('click', () => {
+      navigator.clipboard.writeText(window.location.href);
+      alert('Ссылка скопирована!');
+    });
   }
 }
 
-function copyLink() {
-  const url = window.location.href;
-  navigator.clipboard.writeText(url).then(() => {
-    const btn = document.querySelector('.copy-btn');
-    if (btn) {
-      btn.textContent = '✅ Скопировано!';
-      setTimeout(() => { btn.textContent = '📋 Скопировать ссылку'; }, 2000);
-    }
-  });
-}
+// ИНИЦИАЛИЗАЦИЯ СОБЫТИЙ ПРИ ЗАГРУЗКЕ
+document.addEventListener('DOMContentLoaded', () => {
+  const loginBtn = document.getElementById('login-btn');
+  const logoutBtn = document.getElementById('logout-btn');
+  const addItemBtn = document.getElementById('add-item-btn');
 
-// КРИТИЧЕСКИ ВАЖНО: Делаем функции доступными для HTML onclick
-window.login = login;
-window.logout = logout;
-window.addMenuItem = addMenuItem;
-window.deleteMenuItem = deleteMenuItem;
-window.copyLink = copyLink;
-
-if (!isStandalone()) {
-  document.addEventListener('DOMContentLoaded', () => {
+  if (loginBtn) loginBtn.addEventListener('click', login);
+  if (logoutBtn) logoutBtn.addEventListener('click', logout);
+  if (addItemBtn) addItemBtn.addEventListener('click', addMenuItem);
+  
+  if (!isStandalone()) {
     setTimeout(showInstallButton, 500);
-  });
-}
-
-checkSession();
-console.log('✅ admin.js успешно загружен');
+  }
+  
+  checkSession();
+  console.log('✅ admin.js загружен и готов к работе');
+});
