@@ -1,11 +1,11 @@
 // ==========================================
-// YOLO BURGERS ADMIN - ЧИСТЫЙ КОД (v1.0)
+// YOLO BURGERS ADMIN - v1.1 (FIXED)
 // ==========================================
 
 const SUPABASE_URL = 'https://xdphktujhqnddxmwjred.supabase.co';
-const SUPABASE_KEY = 'sb_publishable__ElzqpGGGXJ6RCV9SHJq_g_Jb9zrvc-'; // ТОЛЬКО ANON КЛЮЧ
+const SUPABASE_KEY = 'sb_publishable__ElzqpGGGXJ6RCV9SHJq_g_Jb9zrvc-';
 
-// Инициализация Supabase (ОДИН РАЗ)
+// Инициализация Supabase
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
 let deferredPrompt = null;
@@ -22,20 +22,37 @@ async function checkSession() {
 }
 
 async function login() {
+  console.log('login() вызвана'); // отладка
   const email = document.getElementById('admin-email').value;
   const password = document.getElementById('admin-password').value;
   const errorMsg = document.getElementById('login-error');
   
-  errorMsg.textContent = 'Вход...';
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  
-  if (error) {
-    errorMsg.textContent = 'Ошибка: ' + error.message;
+  if (!email || !password) {
+    errorMsg.textContent = 'Заполните email и пароль';
     errorMsg.style.color = '#E53935';
-  } else {
-    currentUser = data.user;
-    errorMsg.textContent = '';
-    showAdminPanel();
+    return;
+  }
+  
+  errorMsg.textContent = 'Вход...';
+  errorMsg.style.color = '#FFC107';
+  
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    
+    if (error) {
+      console.error('Ошибка входа:', error);
+      errorMsg.textContent = 'Ошибка: ' + error.message;
+      errorMsg.style.color = '#E53935';
+    } else {
+      console.log('Успешный вход:', data.user);
+      currentUser = data.user;
+      errorMsg.textContent = '';
+      showAdminPanel();
+    }
+  } catch (err) {
+    console.error('Исключение:', err);
+    errorMsg.textContent = 'Ошибка: ' + err.message;
+    errorMsg.style.color = '#E53935';
   }
 }
 
@@ -110,7 +127,6 @@ async function addMenuItem() {
     msg.textContent = '✅ Успешно добавлено!'; 
     msg.style.color = '#4CAF50';
     
-    // Очистка полей
     document.getElementById('item-name').value = '';
     document.getElementById('item-desc').value = '';
     document.getElementById('item-price').value = '';
@@ -122,18 +138,13 @@ async function addMenuItem() {
 }
 
 async function deleteMenuItem(id) {
-  if (!confirm('Вы уверены, что хотите удалить это блюдо?')) return;
-  
-  const { error } = await supabase.from('menu').delete().eq('id', id);
-  if (error) {
-    alert('Ошибка удаления: ' + error.message);
-  } else {
-    loadAdminMenu();
-  }
+  if (!confirm('Удалить?')) return;
+  await supabase.from('menu').delete().eq('id', id);
+  loadAdminMenu();
 }
 
 // ==========================================
-// 3. PWA INSTALL & BROWSER DETECTION
+// 3. PWA INSTALL
 // ==========================================
 function isStandalone() {
   return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
@@ -187,13 +198,12 @@ function showInstallButton() {
     installContainer.innerHTML = `
       <div class="install-instruction">
         <p class="warning">🔵 Вы не в Chrome</p>
-        <p>Скопируйте ссылку и откройте её в <strong>Chrome</strong> для установки.</p>
+        <p>Скопируйте ссылку и откройте её в <strong>Chrome</strong>.</p>
         <button id="openChromeBtn" class="chrome-btn">🌐 Открыть в Chrome</button>
         <button onclick="copyLink()" class="copy-btn">📋 Скопировать ссылку</button>
       </div>
     `;
     
-    // РАБОЧАЯ ЛОГИКА ИЗ nastoechnaya-pwa
     document.getElementById('openChromeBtn').addEventListener('click', () => {
       const url = window.location.href;
       const cleanUrl = url.replace(/^https?:\/\//, '');
@@ -211,12 +221,21 @@ function copyLink() {
       setTimeout(() => { btn.textContent = '📋 Скопировать ссылку'; }, 2000);
     }
   }).catch(() => {
-    prompt('Скопируйте эту ссылку вручную:', url);
+    prompt('Скопируйте вручную:', url);
   });
 }
 
 // ==========================================
-// 4. ИНИЦИАЛИЗАЦИЯ
+// 4. ЭКСПОРТ В ГЛОБАЛЬНУЮ ОБЛАСТЬ (КРИТИЧНО!)
+// ==========================================
+window.login = login;
+window.logout = logout;
+window.addMenuItem = addMenuItem;
+window.deleteMenuItem = deleteMenuItem;
+window.copyLink = copyLink;
+
+// ==========================================
+// 5. ИНИЦИАЛИЗАЦИЯ
 // ==========================================
 if (!isStandalone()) {
   document.addEventListener('DOMContentLoaded', () => {
@@ -224,5 +243,6 @@ if (!isStandalone()) {
   });
 }
 
-// Запуск проверки сессии при загрузке
 checkSession();
+
+console.log('✅ admin.js загружен, Supabase:', typeof window.supabase);
