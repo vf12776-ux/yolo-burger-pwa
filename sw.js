@@ -1,4 +1,4 @@
-const CACHE_NAME = 'yolo-burger-v7';
+const CACHE_NAME = 'yolo-burger-v8';
 const urlsToCache = [
   '/yolo-burger-pwa/',
   '/yolo-burger-pwa/index.html',
