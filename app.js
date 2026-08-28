@@ -1,15 +1,16 @@
-// ВСТАВЬ СЮДА СВОИ ДАННЫЕ ИЗ SUPABASE (те же самые)
-const SUPABASE_URL = 'https://xdphktujhqnddxmwjred.supabase.co/rest/v1/';
+// ИСПРАВЛЕНО: Базовый URL без /rest/v1/
+const SUPABASE_URL = 'https://xdphktujhqnddxmwjred.supabase.co';
 const SUPABASE_KEY = 'sb_publishable__ElzqpGGGXJ6RCV9SHJq_g_Jb9zrvc-';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// ИСПРАВЛЕНО: Используем dbClient, чтобы избежать конфликта имен
+const dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let menuData = [];
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
 // Загрузка меню из базы при старте
 async function loadMenu() {
-  const { data, error } = await supabase
+  const { data, error } = await dbClient
     .from('menu')
     .select('*')
     .eq('is_available', true)
@@ -134,7 +135,6 @@ function checkout() {
   message += `\n💰 Итого: ${total}₽\n\n📱 Имя: [Ваше имя]\n⏰ Время: [Укажите время]`;
   
   const encodedMessage = encodeURIComponent(message);
-  // Замени номер на реальный номер владельца!
   window.open(`https://wa.me/79789270042?text=${encodedMessage}`, '_blank'); 
 }
 

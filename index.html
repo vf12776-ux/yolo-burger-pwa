@@ -9,12 +9,12 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="stylesheet" href="style.css">
   <style>
-  #install-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; max-width: 90%; }
-  .install-btn { background: #E53935; color: white; border: none; padding: 12px 24px; border-radius: 25px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-  .install-hint, .install-instruction { background: #1E1E1E; padding: 15px 20px; border-radius: 12px; border: 1px solid #E53935; text-align: center; color: #FFF8E1; }
-  .warning { color: #E53935; font-weight: bold; margin-bottom: 10px; }
-  .copy-btn, .chrome-btn { background: #E53935; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin: 10px 0; width: 100%; font-weight: bold; }
-</style>
+    #install-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; max-width: 90%; }
+    .install-btn { background: #E53935; color: white; border: none; padding: 12px 24px; border-radius: 25px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+    .install-hint, .install-instruction { background: #1E1E1E; padding: 15px 20px; border-radius: 12px; border: 1px solid #E53935; text-align: center; color: #FFF8E1; }
+    .warning { color: #E53935; font-weight: bold; margin-bottom: 10px; }
+    .copy-btn, .chrome-btn { background: #E53935; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin: 10px 0; width: 100%; font-weight: bold; }
+  </style>
 </head>
 <body>
   <header>
@@ -64,12 +64,16 @@
     👆 Нажмите "Поделиться" <br> и выберите "На экран «Домой»"
   </div>
 
+  <!-- 1. БИБЛИОТЕКА SUPABASE (ОБЯЗАТЕЛЬНО ПЕРЕД app.js) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- 2. ВАШ СКРИПТ -->
   <script src="app.js"></script>
   <script src="install-prompt.js"></script>
+  
   <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/yolo-burger-pwa/sw.js');
-  }
-</script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/yolo-burger-pwa/sw.js');
+    }
+  </script>
 </body>
 </html>
