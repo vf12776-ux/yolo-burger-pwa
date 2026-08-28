@@ -6,6 +6,9 @@ let currentUser = null;
 let deferredPrompt = null;
 let ordersInterval = null;
 
+// ==========================================
+// АВТОРИЗАЦИЯ
+// ==========================================
 async function checkSession() {
   const { data: { session } } = await dbClient.auth.getSession();
   if (session) {
@@ -49,7 +52,6 @@ function showAdminPanel() {
   document.getElementById('admin-panel').classList.remove('hidden');
   loadAdminMenu();
   loadOrders();
-  // Автообновление заказов каждые 30 секунд
   ordersInterval = setInterval(loadOrders, 30000);
 }
 
@@ -184,13 +186,14 @@ async function loadOrders() {
           <span class="order-total">${order.total} ₽</span>
           <span style="font-size:12px;">${statusLabel}</span>
         </div>
-        ${!isDone ? `
-          <div class="order-actions">
+        <div class="order-actions">
+          ${!isDone ? `
             <button class="btn-sm btn-confirm" onclick="updateOrderStatus(${order.id}, 'confirmed')">Подтвердить</button>
             <button class="btn-sm btn-done" onclick="updateOrderStatus(${order.id}, 'done')">Выполнен</button>
             <button class="btn-sm btn-cancel" onclick="updateOrderStatus(${order.id}, 'cancelled')">Отмена</button>
-          </div>
-        ` : ''}
+          ` : ''}
+          <button class="btn-sm" style="background:#757575; color:white;" onclick="deleteOrder(${order.id})">🗑️ Удалить</button>
+        </div>
       </div>
     `;
   }).join('');
@@ -198,6 +201,18 @@ async function loadOrders() {
 
 async function updateOrderStatus(id, status) {
   await dbClient.from('orders').update({ status }).eq('id', id);
+  loadOrders();
+}
+
+async function deleteOrder(id) {
+  if (!confirm('Удалить этот заказ?')) return;
+  await dbClient.from('orders').delete().eq('id', id);
+  loadOrders();
+}
+
+async function clearCompletedOrders() {
+  if (!confirm('Удалить все выполненные и отменённые заказы?')) return;
+  await dbClient.from('orders').delete().in('status', ['done', 'cancelled']);
   loadOrders();
 }
 
@@ -223,7 +238,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
 });
 
 function showInstallButton() {
-  // Жёсткая проверка: если уже установлено — НЕ показываем кнопку
   if (window.matchMedia('(display-mode: standalone)').matches) return;
   if (window.navigator.standalone === true) return;
   
@@ -234,7 +248,6 @@ function showInstallButton() {
   if (browser === 'ios') {
     installContainer.innerHTML = '<div class="install-hint"><p>📱 Нажмите "Поделиться" → "На экран «Домой»"</p></div>';
   } else if (browser === 'android-chrome') {
-    // Показываем кнопку ТОЛЬКО если есть deferredPrompt (браузер разрешает установку)
     if (!deferredPrompt) {
       installContainer.innerHTML = '';
       return;
