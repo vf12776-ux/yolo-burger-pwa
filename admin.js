@@ -1,7 +1,11 @@
-const SUPABASE_URL = 'https://xdphktujhqnddxmwjred.supabase.co';
-const SUPABASE_KEY = 'sb_publishable__ElzqpGGGXJ6RCV9SHJq_g_Jb9zrvc-';
+// Глобальная переменная - не вызывает ошибок при повторной загрузке
+if (!window.supabaseClient) {
+  const SUPABASE_URL = 'https://xdphktujhqnddxmwjred.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable__ElzqpGGGXJ6RCV9SHJq_g_Jb9zrvc-';
+  window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+}
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = window.supabaseClient;
 let currentUser = null;
 let deferredPrompt = null;
 
@@ -14,7 +18,6 @@ async function checkSession() {
 }
 
 async function login() {
-  console.log('Функция login вызвана');
   const email = document.getElementById('admin-email').value;
   const password = document.getElementById('admin-password').value;
   const errorMsg = document.getElementById('login-error');
@@ -69,7 +72,6 @@ async function loadAdminMenu() {
     </div>
   `).join('');
 
-  // Привязываем удаление к новым кнопкам
   document.querySelectorAll('.btn-delete').forEach(btn => {
     btn.addEventListener('click', () => deleteMenuItem(btn.dataset.id));
   });
@@ -112,7 +114,6 @@ async function deleteMenuItem(id) {
   loadAdminMenu();
 }
 
-// PWA Logic
 function isStandalone() {
   return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 }
@@ -170,7 +171,6 @@ function showInstallButton() {
   }
 }
 
-// ИНИЦИАЛИЗАЦИЯ СОБЫТИЙ ПРИ ЗАГРУЗКЕ
 document.addEventListener('DOMContentLoaded', () => {
   const loginBtn = document.getElementById('login-btn');
   const logoutBtn = document.getElementById('logout-btn');
@@ -185,5 +185,4 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   checkSession();
-  console.log('✅ admin.js загружен и готов к работе');
 });
