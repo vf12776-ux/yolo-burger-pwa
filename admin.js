@@ -1,16 +1,13 @@
-// Глобальная переменная - не вызывает ошибок при повторной загрузке
-if (!window.supabaseClient) {
-  const SUPABASE_URL = 'https://xdphktujhqnddxmwjred.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable__ElzqpGGGXJ6RCV9SHJq_g_Jb9zrvc-';
-  window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-}
+// Переименовали переменную в dbClient, чтобы не конфликтовать с window.supabase
+const SUPABASE_URL = 'https://xdphktujhqnddxmwjred.supabase.co';
+const SUPABASE_KEY = 'sb_publishable__ElzqpGGGXJ6RCV9SHJq_g_Jb9zrvc-';
 
-const supabase = window.supabaseClient;
+const dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
 let deferredPrompt = null;
 
 async function checkSession() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await dbClient.auth.getSession();
   if (session) {
     currentUser = session.user;
     showAdminPanel();
@@ -28,7 +25,7 @@ async function login() {
   }
   
   errorMsg.textContent = 'Вход...';
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await dbClient.auth.signInWithPassword({ email, password });
   
   if (error) {
     errorMsg.textContent = 'Ошибка: ' + error.message;
@@ -40,7 +37,7 @@ async function login() {
 }
 
 async function logout() {
-  await supabase.auth.signOut();
+  await dbClient.auth.signOut();
   currentUser = null;
   document.getElementById('login-form').classList.remove('hidden');
   document.getElementById('admin-panel').classList.add('hidden');
@@ -53,7 +50,7 @@ function showAdminPanel() {
 }
 
 async function loadAdminMenu() {
-  const { data, error } = await supabase.from('menu').select('*').order('id', { ascending: false });
+  const { data, error } = await dbClient.from('menu').select('*').order('id', { ascending: false });
   if (error) return;
   
   const listEl = document.getElementById('admin-menu-list');
@@ -91,7 +88,7 @@ async function addMenuItem() {
   }
   
   msg.textContent = 'Сохранение...';
-  const { error } = await supabase.from('menu').insert([{ name, description, price, image_url, is_available: true }]);
+  const { error } = await dbClient.from('menu').insert([{ name, description, price, image_url, is_available: true }]);
   
   if (error) { 
     msg.textContent = 'Ошибка: ' + error.message; 
@@ -110,7 +107,7 @@ async function addMenuItem() {
 
 async function deleteMenuItem(id) {
   if (!confirm('Удалить?')) return;
-  await supabase.from('menu').delete().eq('id', id);
+  await dbClient.from('menu').delete().eq('id', id);
   loadAdminMenu();
 }
 
