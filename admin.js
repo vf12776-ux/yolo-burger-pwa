@@ -1,10 +1,10 @@
-// Переименовали переменную в dbClient, чтобы не конфликтовать с window.supabase
 const SUPABASE_URL = 'https://xdphktujhqnddxmwjred.supabase.co';
 const SUPABASE_KEY = 'sb_publishable__ElzqpGGGXJ6RCV9SHJq_g_Jb9zrvc-';
 
 const dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
 let deferredPrompt = null;
+let ordersInterval = null;
 
 async function checkSession() {
   const { data: { session } } = await dbClient.auth.getSession();
@@ -39,6 +39,7 @@ async function login() {
 async function logout() {
   await dbClient.auth.signOut();
   currentUser = null;
+  if (ordersInterval) clearInterval(ordersInterval);
   document.getElementById('login-form').classList.remove('hidden');
   document.getElementById('admin-panel').classList.add('hidden');
 }
@@ -47,8 +48,26 @@ function showAdminPanel() {
   document.getElementById('login-form').classList.add('hidden');
   document.getElementById('admin-panel').classList.remove('hidden');
   loadAdminMenu();
+  loadOrders();
+  // Автообновление заказов каждые 30 секунд
+  ordersInterval = setInterval(loadOrders, 30000);
 }
 
+// ==========================================
+// ВКЛАДКИ
+// ==========================================
+function switchTab(tab) {
+  document.getElementById('section-menu').classList.toggle('hidden', tab !== 'menu');
+  document.getElementById('section-orders').classList.toggle('hidden', tab !== 'orders');
+  document.getElementById('tab-menu').classList.toggle('active', tab === 'menu');
+  document.getElementById('tab-orders').classList.toggle('active', tab === 'orders');
+  
+  if (tab === 'orders') loadOrders();
+}
+
+// ==========================================
+// МЕНЮ
+// ==========================================
 async function loadAdminMenu() {
   const { data, error } = await dbClient.from('menu').select('*').order('id', { ascending: false });
   if (error) return;
@@ -69,7 +88,7 @@ async function loadAdminMenu() {
     </div>
   `).join('');
 
-  document.querySelectorAll('.btn-delete').forEach(btn => {
+  document.querySelectorAll('.btn-delete[data-id]').forEach(btn => {
     btn.addEventListener('click', () => deleteMenuItem(btn.dataset.id));
   });
 }
@@ -111,6 +130,80 @@ async function deleteMenuItem(id) {
   loadAdminMenu();
 }
 
+// ==========================================
+// ЗАКАЗЫ
+// ==========================================
+async function loadOrders() {
+  const { data, error } = await dbClient
+    .from('orders')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  if (error) {
+    console.error('Ошибка загрузки заказов:', error);
+    return;
+  }
+
+  const newOrders = data.filter(o => o.status === 'new');
+  const badge = document.getElementById('orders-badge');
+  
+  if (newOrders.length > 0) {
+    badge.textContent = newOrders.length;
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
+
+  const listEl = document.getElementById('orders-list');
+  if (!data || data.length === 0) {
+    listEl.innerHTML = '<p style="color:#B0B0B0">Заказов пока нет.</p>';
+    return;
+  }
+
+  listEl.innerHTML = data.map(order => {
+    const itemsList = order.items.map(i => `${i.name} x${i.quantity}`).join(', ');
+    const time = new Date(order.created_at).toLocaleString('ru-RU');
+    const statusLabel = {
+      'new': '🆕 Новый',
+      'confirmed': '✅ Подтверждён',
+      'done': '✔️ Выполнен',
+      'cancelled': '❌ Отменён'
+    }[order.status] || order.status;
+    
+    const isDone = order.status === 'done' || order.status === 'cancelled';
+    
+    return `
+      <div class="order-card ${isDone ? 'done' : ''}">
+        <div class="order-header">
+          <span class="order-id">Заказ №${order.id}</span>
+          <span class="order-time">${time}</span>
+        </div>
+        <div class="order-items">${itemsList}</div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="order-total">${order.total} ₽</span>
+          <span style="font-size:12px;">${statusLabel}</span>
+        </div>
+        ${!isDone ? `
+          <div class="order-actions">
+            <button class="btn-sm btn-confirm" onclick="updateOrderStatus(${order.id}, 'confirmed')">Подтвердить</button>
+            <button class="btn-sm btn-done" onclick="updateOrderStatus(${order.id}, 'done')">Выполнен</button>
+            <button class="btn-sm btn-cancel" onclick="updateOrderStatus(${order.id}, 'cancelled')">Отмена</button>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+async function updateOrderStatus(id, status) {
+  await dbClient.from('orders').update({ status }).eq('id', id);
+  loadOrders();
+}
+
+// ==========================================
+// PWA
+// ==========================================
 function isStandalone() {
   return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 }
@@ -154,13 +247,11 @@ function showInstallButton() {
         <button id="openChromeBtn" class="chrome-btn">🌐 Открыть в Chrome</button>
         <button id="copyLinkBtn" class="copy-btn">📋 Скопировать ссылку</button>
       </div>`;
-    
     document.getElementById('openChromeBtn').addEventListener('click', () => {
       const url = window.location.href;
       const cleanUrl = url.replace(/^https?:\/\//, '');
       window.location.href = 'intent://' + cleanUrl + '#Intent;scheme=googlechrome;end';
     });
-    
     document.getElementById('copyLinkBtn').addEventListener('click', () => {
       navigator.clipboard.writeText(window.location.href);
       alert('Ссылка скопирована!');
@@ -177,9 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (logoutBtn) logoutBtn.addEventListener('click', logout);
   if (addItemBtn) addItemBtn.addEventListener('click', addMenuItem);
   
-  if (!isStandalone()) {
-    setTimeout(showInstallButton, 500);
-  }
+  if (!isStandalone()) setTimeout(showInstallButton, 500);
   
   checkSession();
 });
