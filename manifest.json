@@ -4,7 +4,7 @@
   "description": "Сочные smash-бургеры. Предзаказ и самовывоз.",
   "start_url": "/yolo-burger-pwa/index.html",
   "id": "/yolo-burger-pwa/index.html",
-  "scope": "/yolo-burger-pwa/",
+  "scope": "/yolo-burger-pwa/index.html",
   "display": "standalone",
   "background_color": "#1A1A1A",
   "theme_color": "#E53935",
