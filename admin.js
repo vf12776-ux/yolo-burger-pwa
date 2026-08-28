@@ -223,7 +223,10 @@ window.addEventListener('beforeinstallprompt', (e) => {
 });
 
 function showInstallButton() {
-  if (isStandalone()) return;
+  // Жёсткая проверка: если уже установлено — НЕ показываем кнопку
+  if (window.matchMedia('(display-mode: standalone)').matches) return;
+  if (window.navigator.standalone === true) return;
+  
   const browser = detectBrowser();
   const installContainer = document.getElementById('install-container');
   if (!installContainer) return;
@@ -231,6 +234,11 @@ function showInstallButton() {
   if (browser === 'ios') {
     installContainer.innerHTML = '<div class="install-hint"><p>📱 Нажмите "Поделиться" → "На экран «Домой»"</p></div>';
   } else if (browser === 'android-chrome') {
+    // Показываем кнопку ТОЛЬКО если есть deferredPrompt (браузер разрешает установку)
+    if (!deferredPrompt) {
+      installContainer.innerHTML = '';
+      return;
+    }
     installContainer.innerHTML = '<button id="install-btn" class="install-btn">📱 Установить приложение</button>';
     document.getElementById('install-btn').onclick = async () => {
       if (deferredPrompt) {

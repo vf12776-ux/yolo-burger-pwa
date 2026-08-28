@@ -3,6 +3,8 @@
   "short_name": "YOLO Админ",
   "description": "Панель администратора YOLO Burgers",
   "start_url": "/yolo-burger-pwa/admin.html",
+  "id": "/yolo-burger-pwa/admin.html",
+  "scope": "/yolo-burger-pwa/admin.html",
   "display": "standalone",
   "background_color": "#1A1A1A",
   "theme_color": "#E53935",
